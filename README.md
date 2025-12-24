@@ -7,7 +7,7 @@ A modern, responsive portfolio website built with React.js, Three.js, and Tailwi
 ![Three.js](https://img.shields.io/badge/Three.js-0.160.0-black)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.1-38bdf8)
 
-## 🌟 Features
+## Features
 
 - **3D Particle Animation** - Interactive Three.js particle system in the hero section
 - **Smooth Scrolling** - Seamless navigation between sections
@@ -16,7 +16,7 @@ A modern, responsive portfolio website built with React.js, Three.js, and Tailwi
 - **Fast Performance** - Optimized with Vite for blazing-fast builds
 - **SEO Optimized** - Meta tags and semantic HTML for better search visibility
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -27,7 +27,7 @@ A modern, responsive portfolio website built with React.js, Three.js, and Tailwi
 
 1. Clone the repository
 ```bash
-git clone https://github.com/biswajeet0192/portfolio.git
+git clone https://github.com/biswajeet0192/portfolio-v3.git
 cd portfolio
 ```
 
@@ -47,7 +47,7 @@ yarn dev
 
 4. Open your browser and navigate to `http://localhost:3000`
 
-## 📦 Build for Production
+## Build for Production
 
 ```bash
 npm run build
@@ -57,7 +57,7 @@ yarn build
 
 The production-ready files will be in the `dist` directory.
 
-## 🎨 Customization
+## Customization
 
 ### Update Personal Information
 
@@ -112,7 +112,7 @@ portfolio/
 └── README.md                    # Project documentation
 ```
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 - **React 18.2.0** - UI library
 - **Three.js 0.160.0** - 3D graphics and animations
@@ -120,24 +120,24 @@ portfolio/
 - **Vite 5.0.12** - Build tool and development server
 - **PostCSS & Autoprefixer** - CSS processing
 
-## 📱 Responsive Breakpoints
+## Responsive Breakpoints
 
 - Mobile: 320px - 767px
 - Tablet: 768px - 1023px
 - Desktop: 1024px and above
 
-## 🎯 Browser Support
+## Browser Support
 
 - Chrome (latest)
 - Firefox (latest)
 - Safari (latest)
 - Edge (latest)
 
-## 📄 License
+## License
 
 This project is open source and available under the MIT License.
 
-## 👤 Author
+## Author
 
 **Biswajeet Behera**
 
@@ -145,26 +145,13 @@ This project is open source and available under the MIT License.
 - LinkedIn: [biswajeet-behera](https://linkedin.com/in/biswajeet-behera/)
 - Email: biswajeet092003@gmail.com
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, issues, and feature requests are welcome!
 
-## ⭐ Show Your Support
+## Show Your Support
 
 Give a ⭐️ if you like this project!
-
-## 📝 Deployment
-
-### Deploy to Vercel
-
-1. Push your code to GitHub
-2. Import your repository on [Vercel](https://vercel.com)
-3. Vercel will automatically detect Vite and deploy your site
-
-### Deploy to Netlify
-
-1. Build the project: `npm run build`
-2. Drag and drop the `dist` folder to [Netlify](https://netlify.com)
 
 ### Deploy to GitHub Pages
 
@@ -179,7 +166,7 @@ Give a ⭐️ if you like this project!
 ```
 3. Run: `npm run deploy`
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Port Already in Use
 
@@ -199,6 +186,6 @@ Make sure Three.js is properly installed:
 npm install three
 ```
 
-## 📞 Support
+## Support
 
 For support, email biswajeet092003@gmail.com or open an issue on GitHub.
