@@ -3,13 +3,13 @@ import React from 'react';
 const Achievements = () => {
   const achievements = [
     {
-      title: "Analytica",
+      title: "Analytica: 2023",
       subtitle: "Winner",
       icon: "🏆",
       color: "from-yellow-500 to-orange-500"
     },
     {
-      title: "Flipkart GRiD 5.0 - SDE",
+      title: "Flipkart GRiD 5.0",
       subtitle: "Semi-Finalist",
       icon: "🎯",
       color: "from-blue-500 to-purple-500"
