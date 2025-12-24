@@ -12,7 +12,7 @@ const Projects = () => {
         "Automated Ollama runtime control from the frontend using subprocess commands, ensuring seamless model availability.",
         "Achieved 100% data privacy by running all LLM inference locally, eliminating cloud dependencies."
       ],
-      github: "https://github.com/biswajeet0192",
+      github: "https://github.com/biswajeet0192/locallm",
       featured: true
     },
     {
@@ -24,6 +24,7 @@ const Projects = () => {
         "Developed and integrated a Telegram bot to deliver real-time notifications based on processed analytics data.",
         "Deployed and managed Kafka services using Docker and the Confluent Platform, ensuring efficient data streaming and fault tolerance."
       ],
+      github: "https://github.com/biswajeet0192/YoutubeAnalytics",
       featured: true
     },
     {
@@ -34,7 +35,9 @@ const Projects = () => {
         "Developed a real-time face mask detection system using OpenCV, MobileNetV2, and Keras, achieving accurate mask prediction with live video input.",
         "Implemented face detection and mask prediction by processing video frames and applying a pre-trained deep learning model.",
         "Optimized real-time video processing to detect and label mask compliance, utilizing OpenCV for efficient image handling."
-      ]
+      ],
+      github: "https://github.com/biswajeet0192/face-mask-detection-model",
+      featured: true
     }
   ];
 
