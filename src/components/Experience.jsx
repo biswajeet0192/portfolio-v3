@@ -26,18 +26,18 @@ const Experience = () => {
         "Integrated an MCP server to automate Jira operations such as ticket commenting and state transitions."
       ]
     },
-    {
-      title: "Freelancer",
-      company: "Anatech Global Consultancy",
-      location: "Rourkela, India",
-      period: "May 2024 - Sep 2024",
-      description: [
-        "Delivered responsive websites to over 10 clients, optimizing user experience across diverse devices and screen sizes.",
-        "Implemented 3 Machine Learning models to address specific client needs, enhancing data-driven decision-making.",
-        "Built 2 Deep Learning models tailored to client requirements, contributing to advanced analytical capabilities.",
-        "Implemented a robust tech stack, streamlining build time by 40%, boosting scalability by 50%, and accelerating time-to-market by 35%."
-      ]
-    }
+    // {
+    //   title: "Freelancer",
+    //   company: "Anatech Global Consultancy",
+    //   location: "Rourkela, India",
+    //   period: "May 2024 - Sep 2024",
+    //   description: [
+    //     "Delivered responsive websites to over 10 clients, optimizing user experience across diverse devices and screen sizes.",
+    //     "Implemented 3 Machine Learning models to address specific client needs, enhancing data-driven decision-making.",
+    //     "Built 2 Deep Learning models tailored to client requirements, contributing to advanced analytical capabilities.",
+    //     "Implemented a robust tech stack, streamlining build time by 40%, boosting scalability by 50%, and accelerating time-to-market by 35%."
+    //   ]
+    // }
   ];
 
   return (
