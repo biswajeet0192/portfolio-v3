@@ -26,7 +26,7 @@ const Projects = () => {
         "Developed analytics dashboards and AI-ready features, visualizing sales, profit margins, and inventory ageing, with support for demand forecasting and NLP-based queries."
       ],
       github: "https://github.com/biswajeet0192/inventory-pro",
-      // featured: true
+      featured: true
     },
     {
       title: "Real-Time YouTube Analytics",
@@ -38,7 +38,7 @@ const Projects = () => {
         "Deployed and managed Kafka services using Docker and the Confluent Platform, ensuring efficient data streaming and fault tolerance."
       ],
       github: "https://github.com/biswajeet0192/YoutubeAnalytics",
-      featured: true
+      // featured: true
     },
     {
       title: "Face Mask Detection Model",
