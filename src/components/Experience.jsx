@@ -1,6 +1,133 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
+import * as THREE from 'three';
 
 const Experience = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, alpha: true, antialias: true });
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Create rotating gears (representing work/progress)
+    const createGear = (radius, teeth, innerRadius) => {
+      const shape = new THREE.Shape();
+      const outerRadius = radius;
+      
+      for (let i = 0; i < teeth; i++) {
+        const angle1 = (i / teeth) * Math.PI * 2;
+        const angle2 = ((i + 0.5) / teeth) * Math.PI * 2;
+        const angle3 = ((i + 1) / teeth) * Math.PI * 2;
+        
+        if (i === 0) {
+          shape.moveTo(Math.cos(angle1) * outerRadius, Math.sin(angle1) * outerRadius);
+        }
+        
+        shape.lineTo(Math.cos(angle1) * outerRadius, Math.sin(angle1) * outerRadius);
+        shape.lineTo(Math.cos(angle1) * (outerRadius + 0.2), Math.sin(angle1) * (outerRadius + 0.2));
+        shape.lineTo(Math.cos(angle2) * (outerRadius + 0.2), Math.sin(angle2) * (outerRadius + 0.2));
+        shape.lineTo(Math.cos(angle3) * outerRadius, Math.sin(angle3) * outerRadius);
+      }
+      
+      const hole = new THREE.Path();
+      hole.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
+      shape.holes.push(hole);
+      
+      const extrudeSettings = {
+        depth: 0.3,
+        bevelEnabled: true,
+        bevelThickness: 0.05,
+        bevelSize: 0.05,
+        bevelSegments: 3
+      };
+      
+      return new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    };
+
+    const gears = [];
+    const gearConfigs = [
+      { radius: 1, teeth: 12, innerRadius: 0.3, x: -3, y: 2, z: -2, speed: 0.01, color: 0x4fc3f7 },
+      { radius: 0.7, teeth: 10, innerRadius: 0.2, x: 0, y: -1, z: -1, speed: -0.015, color: 0xba68c8 },
+      { radius: 1.2, teeth: 15, innerRadius: 0.4, x: 3, y: 1, z: -3, speed: 0.008, color: 0xf06292 },
+      { radius: 0.5, teeth: 8, innerRadius: 0.15, x: -1, y: -2, z: 0, speed: -0.02, color: 0x64b5f6 }
+    ];
+
+    gearConfigs.forEach(config => {
+      const geometry = createGear(config.radius, config.teeth, config.innerRadius);
+      const material = new THREE.MeshPhongMaterial({
+        color: config.color,
+        shininess: 100,
+        specular: 0x555555
+      });
+      
+      const gear = new THREE.Mesh(geometry, material);
+      gear.position.set(config.x, config.y, config.z);
+      gear.userData.speed = config.speed;
+      
+      gears.push(gear);
+      scene.add(gear);
+    });
+
+    // Add lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+
+    const pointLight1 = new THREE.PointLight(0x4fc3f7, 1.5, 100);
+    pointLight1.position.set(5, 5, 5);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xba68c8, 1.5, 100);
+    pointLight2.position.set(-5, -5, 5);
+    scene.add(pointLight2);
+
+    camera.position.z = 7;
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    const handleMouseMove = (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      
+      gears.forEach(gear => {
+        gear.rotation.z += gear.userData.speed;
+      });
+
+      camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.05;
+      camera.position.y += (mouseY * 1.5 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+      
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      renderer.dispose();
+    };
+  }, []);
+
   const experiences = [
     {
       title: "Software Engineer II",
@@ -25,24 +152,13 @@ const Experience = () => {
         "Optimized backend performance by 60% through Singleton-based database and Bedrock client connections.",
         "Integrated an MCP server to automate Jira operations such as ticket commenting and state transitions."
       ]
-    },
-    // {
-    //   title: "Freelancer",
-    //   company: "Anatech Global Consultancy",
-    //   location: "Rourkela, India",
-    //   period: "May 2024 - Sep 2024",
-    //   description: [
-    //     "Delivered responsive websites to over 10 clients, optimizing user experience across diverse devices and screen sizes.",
-    //     "Implemented 3 Machine Learning models to address specific client needs, enhancing data-driven decision-making.",
-    //     "Built 2 Deep Learning models tailored to client requirements, contributing to advanced analytical capabilities.",
-    //     "Implemented a robust tech stack, streamlining build time by 40%, boosting scalability by 50%, and accelerating time-to-market by 35%."
-    //   ]
-    // }
+    }
   ];
 
   return (
     <section id="experience" className="py-20 bg-gradient-to-b from-slate-900 to-slate-800 relative overflow-hidden">
-      {/* Animated background elements */}
+      <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-20" />
+      
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500 rounded-full filter blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-500 rounded-full filter blur-3xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
@@ -54,13 +170,11 @@ const Experience = () => {
         </h2>
 
         <div className="relative">
-          {/* Animated timeline */}
           <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 hidden md:block"></div>
 
           <div className="space-y-12">
             {experiences.map((exp, index) => (
               <div key={index} className="relative md:ml-20 group perspective-1000">
-                {/* Timeline dot with pulse animation */}
                 <div className="absolute -left-[4.5rem] top-6 hidden md:block">
                   <div className="relative">
                     <div className="w-4 h-4 rounded-full bg-blue-500 border-4 border-slate-900 relative z-10 transform group-hover:scale-150 transition-all duration-300"></div>
@@ -68,14 +182,10 @@ const Experience = () => {
                   </div>
                 </div>
 
-                {/* Experience card with 3D effect */}
-                <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-4 hover:rotate-x-2 hover:shadow-2xl hover:shadow-blue-500/30" 
+                <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-4 hover:shadow-2xl hover:shadow-blue-500/30" 
                      style={{transformStyle: 'preserve-3d'}}>
                   
-                  {/* Gradient glow on hover */}
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-purple-600/20 to-pink-600/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  
-                  {/* Floating effect border */}
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-500"></div>
 
                   <div className="relative z-10">
@@ -107,7 +217,6 @@ const Experience = () => {
                     </ul>
                   </div>
 
-                  {/* Bottom accent line */}
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-b-xl transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                 </div>
               </div>

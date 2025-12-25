@@ -1,6 +1,111 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
+import * as THREE from 'three';
 
 const About = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, alpha: true, antialias: true });
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Create floating books (representing education and learning)
+    const books = [];
+    const bookGeometry = new THREE.BoxGeometry(0.3, 0.4, 0.05);
+    
+    for (let i = 0; i < 15; i++) {
+      const bookMaterial = new THREE.MeshPhongMaterial({
+        color: new THREE.Color().setHSL(Math.random(), 0.7, 0.5),
+        shininess: 100
+      });
+      
+      const book = new THREE.Mesh(bookGeometry, bookMaterial);
+      book.position.set(
+        (Math.random() - 0.5) * 10,
+        (Math.random() - 0.5) * 8,
+        (Math.random() - 0.5) * 5
+      );
+      book.rotation.set(
+        Math.random() * Math.PI,
+        Math.random() * Math.PI,
+        Math.random() * Math.PI
+      );
+      
+      book.userData = {
+        rotationSpeedX: (Math.random() - 0.5) * 0.02,
+        rotationSpeedY: (Math.random() - 0.5) * 0.02,
+        floatSpeed: Math.random() * 0.01 + 0.005
+      };
+      
+      books.push(book);
+      scene.add(book);
+    }
+
+    // Add ambient light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    // Add point lights
+    const pointLight1 = new THREE.PointLight(0x4fc3f7, 1, 100);
+    pointLight1.position.set(5, 5, 5);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xba68c8, 1, 100);
+    pointLight2.position.set(-5, -5, 5);
+    scene.add(pointLight2);
+
+    camera.position.z = 8;
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    const handleMouseMove = (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      
+      // Animate books
+      books.forEach((book, index) => {
+        book.rotation.x += book.userData.rotationSpeedX;
+        book.rotation.y += book.userData.rotationSpeedY;
+        book.position.y += Math.sin(Date.now() * 0.001 + index) * book.userData.floatSpeed;
+      });
+
+      // Camera follows mouse
+      camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+      camera.position.y += (mouseY * 2 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+      
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      renderer.dispose();
+    };
+  }, []);
+
   const education = [
     {
       institution: "National Institute of Technology Rourkela",
@@ -36,11 +141,11 @@ const About = () => {
 
   return (
     <section id="about" className="py-20 bg-slate-900 relative overflow-hidden">
-      {/* Animated background gradients */}
+      <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-30" />
+      
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500 rounded-full filter blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
       </div>
       
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -49,10 +154,8 @@ const About = () => {
         </h2>
 
         <div className="grid md:grid-cols-2 gap-12 mb-16">
-          {/* Education Card with 3D effect */}
           <div className="group perspective-1000">
-            <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:rotate-y-5 hover:shadow-2xl hover:shadow-blue-500/30" style={{transformStyle: 'preserve-3d'}}>
-              {/* Glow effect on hover */}
+            <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-500/30" style={{transformStyle: 'preserve-3d'}}>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-600/10 to-purple-600/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               
               <div className="relative z-10">
@@ -73,10 +176,8 @@ const About = () => {
             </div>
           </div>
 
-          {/* Skills Card with 3D effect */}
           <div className="group perspective-1000">
-            <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:-rotate-y-5 hover:shadow-2xl hover:shadow-purple-500/30" style={{transformStyle: 'preserve-3d'}}>
-              {/* Glow effect on hover */}
+            <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:shadow-2xl hover:shadow-purple-500/30" style={{transformStyle: 'preserve-3d'}}>
               <div className="absolute inset-0 bg-gradient-to-l from-purple-600/0 via-purple-600/10 to-blue-600/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               
               <div className="relative z-10">
@@ -103,10 +204,8 @@ const About = () => {
           </div>
         </div>
 
-        {/* Coursework Card with 3D effect */}
         <div className="group perspective-1000">
           <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:shadow-2xl hover:shadow-pink-500/30" style={{transformStyle: 'preserve-3d'}}>
-            {/* Glow effect on hover */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-pink-600/10 to-purple-600/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             
             <div className="relative z-10">

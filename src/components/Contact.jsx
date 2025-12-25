@@ -1,11 +1,211 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import * as THREE from 'three';
 
 const Contact = () => {
+  const canvasRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: ''
   });
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, alpha: true, antialias: true });
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Create floating envelopes
+    const envelopes = [];
+    
+    const createEnvelope = () => {
+      const group = new THREE.Group();
+      
+      // Envelope body
+      const bodyGeometry = new THREE.BoxGeometry(1, 0.7, 0.05);
+      const bodyMaterial = new THREE.MeshPhongMaterial({
+        color: 0x4fc3f7,
+        shininess: 100
+      });
+      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+      group.add(body);
+      
+      // Envelope flap
+      const flapGeometry = new THREE.ConeGeometry(0.5, 0.35, 4);
+      const flapMaterial = new THREE.MeshPhongMaterial({
+        color: 0xba68c8,
+        shininess: 100
+      });
+      const flap = new THREE.Mesh(flapGeometry, flapMaterial);
+      flap.rotation.x = Math.PI;
+      flap.position.y = 0.35;
+      flap.position.z = 0.025;
+      group.add(flap);
+      
+      return group;
+    };
+
+    const envelopePositions = [
+      { pos: [-4, 2, -3], scale: 0.6 },
+      { pos: [4, -2, -2], scale: 0.5 },
+      { pos: [-3, -3, -1], scale: 0.7 },
+      { pos: [3, 3, -4], scale: 0.5 },
+      { pos: [0, 1, -2], scale: 0.8 },
+      { pos: [-2, 0, -3], scale: 0.6 }
+    ];
+
+    envelopePositions.forEach((config, i) => {
+      const envelope = createEnvelope();
+      envelope.position.set(...config.pos);
+      envelope.scale.setScalar(config.scale);
+      envelope.rotation.set(
+        Math.random() * Math.PI,
+        Math.random() * Math.PI,
+        Math.random() * Math.PI
+      );
+      
+      envelope.userData = {
+        rotationSpeedX: (Math.random() - 0.5) * 0.01,
+        rotationSpeedY: (Math.random() - 0.5) * 0.01,
+        rotationSpeedZ: (Math.random() - 0.5) * 0.01,
+        floatSpeed: 0.005 + Math.random() * 0.005,
+        initialY: config.pos[1]
+      };
+      
+      envelopes.push(envelope);
+      scene.add(envelope);
+    });
+
+    // Add communication waves/signals
+    const createSignalWave = () => {
+      const curve = new THREE.EllipseCurve(
+        0, 0,
+        2, 2,
+        0, 2 * Math.PI,
+        false,
+        0
+      );
+
+      const points = curve.getPoints(50);
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const material = new THREE.LineBasicMaterial({
+        color: 0x4fc3f7,
+        transparent: true,
+        opacity: 0.3
+      });
+
+      return new THREE.Line(geometry, material);
+    };
+
+    const waves = [];
+    for (let i = 0; i < 3; i++) {
+      const wave = createSignalWave();
+      wave.position.z = -2 - i;
+      wave.scale.setScalar(1 + i * 0.5);
+      wave.userData.rotationSpeed = 0.005 + i * 0.002;
+      waves.push(wave);
+      scene.add(wave);
+    }
+
+    // Add particles
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 600;
+    const positions = new Float32Array(particlesCount * 3);
+    const colors = new Float32Array(particlesCount * 3);
+
+    for (let i = 0; i < particlesCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 15;
+      positions[i + 1] = (Math.random() - 0.5) * 15;
+      positions[i + 2] = (Math.random() - 0.5) * 8;
+
+      colors[i] = 0.3 + Math.random() * 0.3;
+      colors[i + 1] = 0.7 + Math.random() * 0.3;
+      colors[i + 2] = 0.9 + Math.random() * 0.1;
+    }
+
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.03,
+      transparent: true,
+      opacity: 0.6,
+      vertexColors: true,
+      blending: THREE.AdditiveBlending
+    });
+
+    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particles);
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const pointLight1 = new THREE.PointLight(0x4fc3f7, 2, 100);
+    pointLight1.position.set(5, 5, 5);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xba68c8, 2, 100);
+    pointLight2.position.set(-5, -5, 5);
+    scene.add(pointLight2);
+
+    camera.position.z = 8;
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    const handleMouseMove = (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+
+      const time = Date.now() * 0.001;
+
+      envelopes.forEach((envelope, index) => {
+        envelope.rotation.x += envelope.userData.rotationSpeedX;
+        envelope.rotation.y += envelope.userData.rotationSpeedY;
+        envelope.rotation.z += envelope.userData.rotationSpeedZ;
+        envelope.position.y = envelope.userData.initialY + Math.sin(time + index) * envelope.userData.floatSpeed * 10;
+      });
+
+      waves.forEach(wave => {
+        wave.rotation.z += wave.userData.rotationSpeed;
+      });
+
+      particles.rotation.y += 0.0003;
+
+      camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+      camera.position.y += (mouseY * 2 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      renderer.dispose();
+    };
+  }, []);
 
   const handleSubmit = () => {
     const mailtoLink = `mailto:biswajeet092003@gmail.com?subject=Portfolio Contact from ${formData.name}&body=${encodeURIComponent(
@@ -23,7 +223,8 @@ const Contact = () => {
 
   return (
     <section id="contact" className="py-20 bg-slate-900 relative overflow-hidden">
-      {/* Animated background gradients */}
+      <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-20" />
+      
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
@@ -35,16 +236,14 @@ const Contact = () => {
         </h2>
 
         <div className="grid md:grid-cols-2 gap-12">
-          {/* Contact Information Card with 3D effect */}
           <div className="group perspective-1000">
-            <div className="relative transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:rotate-y-5" style={{transformStyle: 'preserve-3d'}}>
+            <div className="relative transform transition-all duration-500 hover:scale-105 hover:-translate-y-3" style={{transformStyle: 'preserve-3d'}}>
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-xl opacity-0 group-hover:opacity-30 blur transition-opacity duration-500"></div>
               
               <div className="relative bg-slate-800 p-8 rounded-xl border border-slate-700">
                 <h3 className="text-2xl font-semibold text-white mb-6 transform transition-all duration-300 group-hover:scale-110">Contact Information</h3>
                 
                 <div className="space-y-6">
-                  {/* Email */}
                   <div className="flex items-start transform transition-all duration-300 hover:translate-x-2">
                     <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4 flex-shrink-0 transform transition-all duration-300 hover:scale-110 hover:rotate-12 hover:shadow-lg hover:shadow-blue-500/50">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +258,6 @@ const Contact = () => {
                     </div>
                   </div>
 
-                  {/* Phone */}
                   <div className="flex items-start transform transition-all duration-300 hover:translate-x-2">
                     <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4 flex-shrink-0 transform transition-all duration-300 hover:scale-110 hover:rotate-12 hover:shadow-lg hover:shadow-blue-500/50">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +272,6 @@ const Contact = () => {
                     </div>
                   </div>
 
-                  {/* GitHub */}
                   <div className="flex items-start transform transition-all duration-300 hover:translate-x-2">
                     <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4 flex-shrink-0 transform transition-all duration-300 hover:scale-110 hover:rotate-12 hover:shadow-lg hover:shadow-blue-500/50">
                       <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -89,7 +286,6 @@ const Contact = () => {
                     </div>
                   </div>
 
-                  {/* LinkedIn */}
                   <div className="flex items-start transform transition-all duration-300 hover:translate-x-2">
                     <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4 flex-shrink-0 transform transition-all duration-300 hover:scale-110 hover:rotate-12 hover:shadow-lg hover:shadow-blue-500/50">
                       <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -108,9 +304,8 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* Contact Form Card with 3D effect */}
           <div className="group perspective-1000">
-            <div className="relative transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:-rotate-y-5" style={{transformStyle: 'preserve-3d'}}>
+            <div className="relative transform transition-all duration-500 hover:scale-105 hover:-translate-y-3" style={{transformStyle: 'preserve-3d'}}>
               <div className="absolute -inset-0.5 bg-gradient-to-l from-purple-600 via-pink-600 to-blue-600 rounded-xl opacity-0 group-hover:opacity-30 blur transition-opacity duration-500"></div>
               
               <div className="relative bg-slate-800 p-8 rounded-xl border border-slate-700">

@@ -1,6 +1,150 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
+import * as THREE from 'three';
 
 const Projects = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, alpha: true, antialias: true });
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Create interconnected cubes (representing projects/modules)
+    const cubes = [];
+    const cubeGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    
+    const positions = [
+      [-3, 2, -2], [0, 3, -1], [3, 2, -2],
+      [-2, 0, 0], [2, 0, 0],
+      [-3, -2, -1], [0, -3, -2], [3, -2, -1]
+    ];
+
+    positions.forEach((pos, i) => {
+      const material = new THREE.MeshPhongMaterial({
+        color: new THREE.Color().setHSL(i / positions.length, 0.8, 0.5),
+        shininess: 100,
+        transparent: true,
+        opacity: 0.8
+      });
+      
+      const cube = new THREE.Mesh(cubeGeometry, material);
+      cube.position.set(...pos);
+      
+      cube.userData = {
+        rotationSpeedX: (Math.random() - 0.5) * 0.01,
+        rotationSpeedY: (Math.random() - 0.5) * 0.01,
+        initialY: pos[1]
+      };
+      
+      cubes.push(cube);
+      scene.add(cube);
+    });
+
+    // Create lines connecting cubes
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0x4fc3f7,
+      transparent: true,
+      opacity: 0.3
+    });
+
+    for (let i = 0; i < cubes.length; i++) {
+      for (let j = i + 1; j < cubes.length; j++) {
+        const distance = cubes[i].position.distanceTo(cubes[j].position);
+        if (distance < 4) {
+          const points = [];
+          points.push(cubes[i].position);
+          points.push(cubes[j].position);
+          const geometry = new THREE.BufferGeometry().setFromPoints(points);
+          const line = new THREE.Line(geometry, lineMaterial);
+          scene.add(line);
+        }
+      }
+    }
+
+    // Add particles for extra effect
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 500;
+    const positions3 = new Float32Array(particlesCount * 3);
+
+    for (let i = 0; i < particlesCount * 3; i++) {
+      positions3[i] = (Math.random() - 0.5) * 15;
+    }
+
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions3, 3));
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.02,
+      color: 0x4fc3f7,
+      transparent: true,
+      opacity: 0.6
+    });
+
+    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particles);
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const pointLight1 = new THREE.PointLight(0x4fc3f7, 2, 100);
+    pointLight1.position.set(5, 5, 5);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xba68c8, 2, 100);
+    pointLight2.position.set(-5, -5, 5);
+    scene.add(pointLight2);
+
+    camera.position.z = 10;
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    const handleMouseMove = (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      
+      cubes.forEach((cube, index) => {
+        cube.rotation.x += cube.userData.rotationSpeedX;
+        cube.rotation.y += cube.userData.rotationSpeedY;
+        cube.position.y = cube.userData.initialY + Math.sin(Date.now() * 0.001 + index) * 0.3;
+      });
+
+      particles.rotation.y += 0.0005;
+
+      camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+      camera.position.y += (mouseY * 2 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+      
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      renderer.dispose();
+    };
+  }, []);
+
   const projects = [
     {
       title: "LocalLM",
@@ -37,8 +181,7 @@ const Projects = () => {
         "Developed and integrated a Telegram bot to deliver real-time notifications based on processed analytics data.",
         "Deployed and managed Kafka services using Docker and the Confluent Platform, ensuring efficient data streaming and fault tolerance."
       ],
-      github: "https://github.com/biswajeet0192/YoutubeAnalytics",
-      // featured: true
+      github: "https://github.com/biswajeet0192/YoutubeAnalytics"
     },
     {
       title: "Face Mask Detection Model",
@@ -49,14 +192,14 @@ const Projects = () => {
         "Implemented face detection and mask prediction by processing video frames and applying a pre-trained deep learning model.",
         "Optimized real-time video processing to detect and label mask compliance, utilizing OpenCV for efficient image handling."
       ],
-      github: "https://github.com/biswajeet0192/face-mask-detection-model",
-      // featured: true
+      github: "https://github.com/biswajeet0192/face-mask-detection-model"
     }
   ];
 
   return (
     <section id="projects" className="py-20 bg-slate-800 relative overflow-hidden">
-      {/* Animated background gradients */}
+      <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-25" />
+      
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
@@ -73,23 +216,18 @@ const Projects = () => {
               key={index} 
               className={`group perspective-1000 ${project.featured ? 'md:col-span-2 lg:col-span-1' : ''}`}
             >
-              <div className="relative bg-slate-900 rounded-xl shadow-xl border border-slate-700 overflow-hidden transform transition-all duration-500 hover:scale-105 hover:-translate-y-4 hover:rotate-x-3 hover:shadow-2xl hover:shadow-purple-500/30"
+              <div className="relative bg-slate-900 rounded-xl shadow-xl border border-slate-700 overflow-hidden transform transition-all duration-500 hover:scale-105 hover:-translate-y-4 hover:shadow-2xl hover:shadow-purple-500/30"
                    style={{transformStyle: 'preserve-3d'}}>
                 
-                {/* Animated gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 via-purple-600/20 to-pink-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
-                {/* Floating glow effect */}
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-xl opacity-0 group-hover:opacity-30 blur transition-opacity duration-500"></div>
 
                 <div className="p-8 relative z-10">
                   <div className="flex justify-between items-center mb-4">
-                    {/* Title on the left */}
                     <h3 className="text-2xl font-bold text-white transform transition-all duration-300 group-hover:scale-110 group-hover:text-blue-400">
                       {project.title}
                     </h3>
 
-                    {/* Icons grouped together on the right */}
                     <div className="flex gap-4">
                       {project.link && (
                         <a 
@@ -142,7 +280,6 @@ const Projects = () => {
                   </ul>
                 </div>
 
-                {/* Bottom accent line with animated gradient */}
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
               </div>
             </div>
