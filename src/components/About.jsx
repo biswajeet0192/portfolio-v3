@@ -39,7 +39,8 @@ const About = () => {
       book.userData = {
         rotationSpeedX: (Math.random() - 0.5) * 0.02,
         rotationSpeedY: (Math.random() - 0.5) * 0.02,
-        floatSpeed: Math.random() * 0.01 + 0.005
+        floatSpeed: Math.random() * 0.01 + 0.005,
+        initialY: book.position.y
       };
       
       books.push(book);
@@ -75,10 +76,13 @@ const About = () => {
       requestAnimationFrame(animate);
       
       // Animate books
+      const time = Date.now() * 0.001;
       books.forEach((book, index) => {
         book.rotation.x += book.userData.rotationSpeedX;
         book.rotation.y += book.userData.rotationSpeedY;
-        book.position.y += Math.sin(Date.now() * 0.001 + index) * book.userData.floatSpeed;
+        // Use sin wave for smooth floating instead of accumulating position
+        const initialY = book.userData.initialY;
+        book.position.y = initialY + Math.sin(time + index) * 0.5;
       });
 
       // Camera follows mouse
@@ -114,13 +118,13 @@ const About = () => {
       gpa: "7.32/10.0"
     },
     {
-      institution: "SVM Higher Secondary School, Berhampur",
+      institution: "SVM Higher Secondary School, Berhampur, Odisha",
       degree: "Intermediate",
       period: "Jul 2019 - Oct 2021",
       percentage: "95.5%"
     },
     {
-      institution: "KSB Public School, Sarankul, Nayagarh",
+      institution: "KSB Public School, Sarankul, Nayagarh, Odisha",
       degree: "Matriculation",
       period: "Apr 2018 - Mar 2019",
       percentage: "93%"
@@ -131,7 +135,10 @@ const About = () => {
     "Programming": ["C++", "Python", "SQL"],
     "Databases": ["PostgreSQL", "MongoDB", "DynamoDB"],
     "Libraries": ["NumPy", "Pandas", "Matplotlib", "TensorFlow", "Langchain"],
-    "Tools": ["Git", "GitHub", "AWS", "PowerBI", "Ollama", "Docker", "Spark", "Airflow", "Kafka", "Hadoop", "Podman", "MCP Server", "LLM"]
+    "Data Science & ML": ["NumPy", "Pandas", "Matplotlib", "Tensorflow"],
+    "LLM & AI Systems": ["Ollama", "Hugging Face", "Langchain", "MCP Server"],
+    "DevOps & Cloud": ["AWS", "Docker", "Podman", "GitHub Actions"],
+    "Big Data & Streaming": ["Spark", "Airflow", "Kafka", "Hadoop"]
   };
 
   const coursework = {
@@ -153,22 +160,24 @@ const About = () => {
           About Me
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-12 mb-16">
+        <div className="grid md:grid-cols-2 gap-12 mb-16 items-stretch">
           <div className="group perspective-1000">
-            <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-500/30" style={{transformStyle: 'preserve-3d'}}>
+            <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-500/30 h-full flex flex-col" style={{transformStyle: 'preserve-3d'}}>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-600/10 to-purple-600/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               
-              <div className="relative z-10">
-                <h3 className="text-3xl font-semibold text-blue-400 mb-6 transform transition-all duration-300 group-hover:scale-110">Education</h3>
-                <div className="space-y-6">
+              <div className="relative z-10 flex flex-col h-full">
+                <h3 className="text-3xl font-semibold text-blue-400 mb-8 transform transition-all duration-300 group-hover:scale-110">Education</h3>
+                <div className="flex-1 flex flex-col justify-around gap-4">
                   {education.map((edu, index) => (
-                    <div key={index} className="border-l-4 border-blue-500 pl-4 transform transition-all duration-300 hover:translate-x-3 hover:border-purple-500">
-                      <h4 className="text-xl font-semibold text-white">{edu.institution}</h4>
-                      <p className="text-gray-300">{edu.degree}</p>
-                      <p className="text-gray-400 text-sm">{edu.period}</p>
-                      <p className="text-blue-300 font-medium mt-1">
-                        {edu.gpa ? `GPA: ${edu.gpa}` : `Percentage: ${edu.percentage}`}
-                      </p>
+                    <div key={index} className="bg-slate-700/50 rounded-lg p-5 border-l-4 border-blue-500 transform transition-all duration-300 hover:translate-x-2 hover:border-purple-500 hover:bg-slate-700/70">
+                      <h4 className="text-lg font-bold text-white mb-2">{edu.institution}</h4>
+                      <p className="text-gray-300 font-medium mb-1">{edu.degree}</p>
+                      <div className="flex justify-between items-center mt-3">
+                        <p className="text-gray-400 text-sm">{edu.period}</p>
+                        <p className="text-blue-400 font-semibold text-sm">
+                          {edu.gpa ? `GPA: ${edu.gpa}` : `${edu.percentage}`}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -177,12 +186,12 @@ const About = () => {
           </div>
 
           <div className="group perspective-1000">
-            <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:shadow-2xl hover:shadow-purple-500/30" style={{transformStyle: 'preserve-3d'}}>
+            <div className="relative bg-slate-800 p-8 rounded-xl shadow-xl border border-slate-700 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 hover:shadow-2xl hover:shadow-purple-500/30 h-full flex flex-col" style={{transformStyle: 'preserve-3d'}}>
               <div className="absolute inset-0 bg-gradient-to-l from-purple-600/0 via-purple-600/10 to-blue-600/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               
-              <div className="relative z-10">
-                <h3 className="text-3xl font-semibold text-blue-400 mb-6 transform transition-all duration-300 group-hover:scale-110">Technical Skills</h3>
-                <div className="space-y-4">
+              <div className="relative z-10 flex flex-col h-full">
+                <h3 className="text-3xl font-semibold text-blue-400 mb-8 transform transition-all duration-300 group-hover:scale-110">Technical Skills</h3>
+                <div className="space-y-4 flex-1">
                   {Object.entries(skills).map(([category, items]) => (
                     <div key={category}>
                       <h4 className="text-lg font-semibold text-gray-200 mb-2">{category}</h4>
