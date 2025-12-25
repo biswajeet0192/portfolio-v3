@@ -142,7 +142,7 @@ const About = () => {
   };
 
   const coursework = {
-    "Computer Science": ["Deep Learning", "Data Structures and Algorithms", "Database Management System", "System Design"],
+    "Computer Science": ["Deep Learning", "Data Structures and Algorithms", "Database Management System", "System Design", "Operating System"],
     "Mathematics": ["Probability & Statistics", "Vector Algebra", "Linear Algebra"]
   };
 
