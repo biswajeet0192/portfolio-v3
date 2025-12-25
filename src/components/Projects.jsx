@@ -16,6 +16,19 @@ const Projects = () => {
       featured: true
     },
     {
+      title: "Inventory Management System",
+      period: "2025",
+      tech: ["Python", "FastAPI", "MongoDB", "ReactJS", "Tailwind CSS"],
+      description: [
+        "Built a full-stack Inventory & Warehouse Management System using ReactJS, FastAPI, and PostgreSQL, supporting SKU-level stock tracking, POS sales, and multi-warehouse operations.",
+        "Implemented JWT-based role-based access control (RBAC) for Admin/Staff roles with secure backend APIs and protected frontend routes.",
+        "Designed real-time inventory tracking and automated low-stock alerts using transaction logs and APScheduler/Celery for scheduled notifications.",
+        "Developed analytics dashboards and AI-ready features, visualizing sales, profit margins, and inventory ageing, with support for demand forecasting and NLP-based queries."
+      ],
+      github: "https://github.com/biswajeet0192/inventory-pro",
+      // featured: true
+    },
+    {
       title: "Real-Time YouTube Analytics",
       period: "Mar 2024 - Apr 2024",
       tech: ["Python", "Kafka", "ksqlDB", "Telegram API", "Docker", "Confluent Platform"],
